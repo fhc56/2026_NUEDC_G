@@ -1,0 +1,36 @@
+STM32 FPGA display project validation
+=====================================
+
+1. The original ZIP remains unchanged at:
+   D:\电赛\省赛\STM32_UART_Test.zip
+
+2. The FPGA 105-byte ASCII protocol parser was compiled with MinGW using
+   SERIAL_HOST_TEST and passed:
+   STM32_SERIAL_PROTOCOL_PASS
+
+   Covered cases:
+   - exact valid frame and all decoded fields
+   - checksum rejection
+   - noise/partial-frame resynchronisation on '$'
+
+3. Vivado SDK arm-none-eabi-gcc compiled all firmware sources needed by the
+   target, including all modified files, then linked a complete Cortex-M3 ELF,
+   Intel HEX and raw BIN successfully:
+
+   STM32_GCC_BUILD_PASS
+
+   Flash image: 45,080 bytes (fits 64 KiB)
+   Static data + BSS: 6,008 bytes (fits 20 KiB before heap/stack reservation)
+   Vector table address: 0x08000000
+   USART1 vector: strong USART1_IRQHandler from Hardware/Serial.c
+
+4. The optional GCC build excludes the original Start/core_cm3.c because its
+   legacy CMSIS implementation emits STREXB/STREXH operand combinations that a
+   newer GNU assembler rejects. None of its out-of-line compatibility helpers
+   are required by this firmware; the CMSIS header intrinsics and StdPeriph
+   NVIC implementation are used instead. The Keil project retains the file.
+
+5. Keil/ARMCC is not installed in the current execution environment. The Keil
+   project now enables Create HEX File and remains available for the user's
+   original MDK5 workflow. The GCC HEX/BIN were built locally but have not yet
+   been downloaded to physical STM32 hardware because no ST-Link is connected.
